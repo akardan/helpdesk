@@ -6,9 +6,9 @@
         AI-powered intelligent agents for helpdesk automation:
         auto-classification, smart routing, knowledge matching,
         problem detection, and auto-resolution""",
-    "version": "14.0.1.0.0",
+    "version": "18.0.1.0.0",
     "license": "AGPL-3",
-    "category": "After-Sales",
+    "category": "Services/Helpdesk",
     "author": "Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/helpdesk",
     "depends": [
@@ -27,6 +27,7 @@
     ],
     "demo": [],
     "development_status": "Beta",
+    "application": False,
     "installable": True,
     "auto_install": False,
 }

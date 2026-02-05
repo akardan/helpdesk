@@ -2,7 +2,7 @@
 
 ## 🎯 Genel Bakış
 
-Bu proje, mevcut Odoo 14 Helpdesk Management sistemini ITIL 4 standartlarına uyumlu, AI destekli gelişmiş bir helpdesk platformuna dönüştürmektedir.
+Bu proje, Odoo 18 CE Helpdesk Management sistemini ITIL 4 standartlarına uyumlu, AI destekli gelişmiş bir enterprise-grade helpdesk platformuna dönüştürmektedir.
 
 ### ✨ Temel Özellikler
 
@@ -217,9 +217,10 @@ config = env['helpdesk.ai.agent.config'].create({
 ## 🚀 Kurulum
 
 ### Gereksinimler
-- Odoo 14.0
-- Python 3.6+
-- PostgreSQL
+- **Odoo 18.0 CE** (Community Edition)
+- **Python 3.10+** (Odoo 18 requirement)
+- **PostgreSQL 12+**
+- **pip3** (Python package manager)
 
 ### Kurulum Adımları
 

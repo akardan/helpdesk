@@ -4,9 +4,9 @@
     "name": "Helpdesk Problem Management",
     "summary": """
         ITIL-compliant Problem Management - identify root causes and prevent recurring incidents""",
-    "version": "14.0.1.0.0",
+    "version": "18.0.1.0.0",
     "license": "AGPL-3",
-    "category": "After-Sales",
+    "category": "Services/Helpdesk",
     "author": "Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/helpdesk",
     "depends": ["helpdesk_mgmt"],
@@ -19,6 +19,7 @@
     ],
     "demo": [],
     "development_status": "Beta",
+    "application": False,
     "installable": True,
     "auto_install": False,
 }
