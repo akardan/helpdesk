@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Known Error Form View -->
+    <record id="helpdesk_known_error_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.known.error.form</field>
+        <field name="model">helpdesk.known.error</field>
+        <field name="arch" type="xml">
+            <form string="Known Error">
+                <header>
+                    <button name="action_mark_active" string="Mark Active" type="object"
+                            states="obsolete,resolved" class="oe_highlight"/>
+                    <button name="action_mark_obsolete" string="Mark Obsolete" type="object"
+                            states="active"/>
+                    <button name="action_mark_resolved" string="Mark Resolved" type="object"
+                            states="active" class="oe_highlight"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_tickets" type="object"
+                                class="oe_stat_button" icon="fa-ticket">
+                            <field name="ticket_count" widget="statinfo" string="Tickets"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="number" class="oe_edit_only"/>
+                        <h1>
+                            <field name="number" readonly="1"/>
+                        </h1>
+                        <label for="name"/>
+                        <h2>
+                            <field name="name" placeholder="Known error title..."/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group name="main">
+                            <field name="problem_id"/>
+                            <field name="category_id"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                            <field name="severity"/>
+                        </group>
+                        <group name="stats">
+                            <field name="affected_users_estimate"/>
+                            <field name="usage_count"/>
+                            <field name="last_used_date"/>
+                            <field name="ai_match_enabled"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Error description..."/>
+                        </page>
+                        <page string="Root Cause" name="root_cause">
+                            <field name="root_cause" placeholder="Known root cause..."/>
+                        </page>
+                        <page string="Workaround" name="workaround">
+                            <field name="workaround" placeholder="Temporary workaround..."/>
+                        </page>
+                        <page string="Permanent Solution" name="solution">
+                            <field name="solution" placeholder="Permanent solution..."/>
+                        </page>
+                        <page string="Keywords" name="keywords">
+                            <group>
+                                <field name="symptom_keywords" placeholder="comma, separated, keywords"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Known Error Tree View -->
+    <record id="helpdesk_known_error_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.known.error.tree</field>
+        <field name="model">helpdesk.known.error</field>
+        <field name="arch" type="xml">
+            <tree string="Known Errors">
+                <field name="number"/>
+                <field name="name"/>
+                <field name="severity"/>
+                <field name="state"/>
+                <field name="usage_count"/>
+                <field name="ticket_count"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Known Error Action -->
+    <record id="helpdesk_known_error_action" model="ir.actions.act_window">
+        <field name="name">Known Error Database</field>
+        <field name="res_model">helpdesk.known.error</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_helpdesk_known_error"
+              name="Known Errors"
+              parent="helpdesk_mgmt.helpdesk_ticket_menu"
+              action="helpdesk_known_error_action"
+              sequence="16"/>
+
+</odoo>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- SLA Status Tree View -->
+    <record id="helpdesk_sla_status_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.sla.status.tree</field>
+        <field name="model">helpdesk.sla.status</field>
+        <field name="arch" type="xml">
+            <tree string="SLA Statuses" decoration-danger="overall_sla_status == 'breached'"
+                  decoration-warning="overall_sla_status == 'at_risk'"
+                  decoration-success="overall_sla_status == 'met'">
+                <field name="ticket_id"/>
+                <field name="sla_policy_id"/>
+                <field name="deadline_response"/>
+                <field name="response_sla_status"/>
+                <field name="deadline_resolution"/>
+                <field name="resolution_sla_status"/>
+                <field name="overall_sla_status"/>
+                <field name="escalated"/>
+                <field name="color" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- SLA Status Form View -->
+    <record id="helpdesk_sla_status_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.sla.status.form</field>
+        <field name="model">helpdesk.sla.status</field>
+        <field name="arch" type="xml">
+            <form string="SLA Status">
+                <header>
+                    <button name="trigger_escalation" string="Escalate" type="object"
+                            class="oe_highlight"
+                            attrs="{'invisible': [('escalated', '=', True)]}"/>
+                    <field name="overall_sla_status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="ticket_id" readonly="1"/>
+                        </h1>
+                        <h2>
+                            <field name="sla_policy_id" readonly="1"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group name="response" string="Response SLA">
+                            <field name="response_time_target"/>
+                            <field name="deadline_response"/>
+                            <field name="response_date"/>
+                            <field name="response_time_actual"/>
+                            <field name="response_sla_met"/>
+                            <field name="response_sla_status"/>
+                            <field name="response_progress" widget="progressbar"/>
+                        </group>
+                        <group name="resolution" string="Resolution SLA">
+                            <field name="resolution_time_target"/>
+                            <field name="deadline_resolution"/>
+                            <field name="resolution_date"/>
+                            <field name="resolution_time_actual"/>
+                            <field name="resolution_sla_met"/>
+                            <field name="resolution_sla_status"/>
+                            <field name="resolution_progress" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="escalation" string="Escalation">
+                            <field name="escalated"/>
+                            <field name="escalation_date" attrs="{'invisible': [('escalated', '=', False)]}"/>
+                            <field name="escalation_reason" attrs="{'invisible': [('escalated', '=', False)]}"/>
+                        </group>
+                        <group name="pause" string="Pause Information">
+                            <field name="paused"/>
+                            <field name="pause_start_date" attrs="{'invisible': [('paused', '=', False)]}"/>
+                            <field name="total_pause_duration"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- SLA Status Kanban View -->
+    <record id="helpdesk_sla_status_view_kanban" model="ir.ui.view">
+        <field name="name">helpdesk.sla.status.kanban</field>
+        <field name="model">helpdesk.sla.status</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="ticket_id"/>
+                <field name="sla_policy_id"/>
+                <field name="overall_sla_status"/>
+                <field name="resolution_progress"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="ticket_id"/>
+                                    </strong>
+                                </div>
+                                <span class="badge badge-pill">
+                                    <field name="overall_sla_status"/>
+                                </span>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="sla_policy_id"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="resolution_progress" widget="progressbar"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- SLA Status Action -->
+    <record id="helpdesk_sla_status_action" model="ir.actions.act_window">
+        <field name="name">SLA Status</field>
+        <field name="res_model">helpdesk.sla.status</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_helpdesk_sla_status"
+              name="SLA Status"
+              parent="menu_helpdesk_sla_root"
+              action="helpdesk_sla_status_action"
+              sequence="20"/>
+
+</odoo>

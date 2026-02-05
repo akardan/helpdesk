@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="helpdesk_ticket_view_form_ai" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.ai</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="AI Analysis" name="ai_analysis" attrs="{'invisible': [('ai_processed', '=', False)]}">
+                    <group>
+                        <field name="ai_processed"/>
+                        <field name="ai_classification_confidence" widget="progressbar"/>
+                        <field name="ai_routing_confidence" widget="progressbar"/>
+                        <field name="ai_suggestions"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

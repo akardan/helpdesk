@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_helpdesk_sla_policy_user,helpdesk.sla.policy.user,model_helpdesk_sla_policy,helpdesk_mgmt.group_helpdesk_user,1,0,0,0
+access_helpdesk_sla_policy_manager,helpdesk.sla.policy.manager,model_helpdesk_sla_policy,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_helpdesk_sla_status_user,helpdesk.sla.status.user,model_helpdesk_sla_status,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_helpdesk_sla_status_manager,helpdesk.sla.status.manager,model_helpdesk_sla_status,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_helpdesk_ticket_priority_user,helpdesk.ticket.priority.user,model_helpdesk_ticket_priority,helpdesk_mgmt.group_helpdesk_user,1,0,0,0
+access_helpdesk_ticket_priority_manager,helpdesk.ticket.priority.manager,model_helpdesk_ticket_priority,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1

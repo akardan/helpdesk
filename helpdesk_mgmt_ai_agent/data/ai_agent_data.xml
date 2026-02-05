@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Default AI Agent Configuration -->
+        <record id="default_ai_config" model="helpdesk.ai.agent.config">
+            <field name="name">Default AI Configuration</field>
+            <field name="auto_process_new_tickets" eval="True"/>
+            <field name="auto_classify" eval="True"/>
+            <field name="auto_route" eval="True"/>
+            <field name="auto_suggest_knowledge" eval="True"/>
+            <field name="auto_resolve" eval="False"/>
+            <field name="min_confidence_threshold">70.0</field>
+        </record>
+
+        <!-- AI Agents -->
+        <record id="ai_agent_classifier" model="helpdesk.ai.agent">
+            <field name="name">Classification Agent</field>
+            <field name="agent_type">classifier</field>
+            <field name="config_id" ref="default_ai_config"/>
+            <field name="description">Automatically classifies tickets (category, priority, tags)</field>
+        </record>
+
+        <record id="ai_agent_router" model="helpdesk.ai.agent">
+            <field name="name">Routing Agent</field>
+            <field name="agent_type">router</field>
+            <field name="config_id" ref="default_ai_config"/>
+            <field name="description">Intelligently routes tickets to teams and users</field>
+        </record>
+
+        <record id="ai_agent_knowledge" model="helpdesk.ai.agent">
+            <field name="name">Knowledge Matcher</field>
+            <field name="agent_type">knowledge_matcher</field>
+            <field name="config_id" ref="default_ai_config"/>
+            <field name="description">Matches tickets with relevant knowledge base articles</field>
+        </record>
+
+        <record id="ai_agent_resolver" model="helpdesk.ai.agent">
+            <field name="name">Auto-Resolution Agent</field>
+            <field name="agent_type">resolver</field>
+            <field name="config_id" ref="default_ai_config"/>
+            <field name="description">Attempts to automatically resolve tickets</field>
+        </record>
+
+        <record id="ai_agent_pattern" model="helpdesk.ai.agent">
+            <field name="name">Pattern Detector</field>
+            <field name="agent_type">pattern_detector</field>
+            <field name="config_id" ref="default_ai_config"/>
+            <field name="description">Detects recurring patterns and suggests problem creation</field>
+        </record>
+
+        <record id="ai_agent_subtask" model="helpdesk.ai.agent">
+            <field name="name">Sub-task Creator</field>
+            <field name="agent_type">subtask_creator</field>
+            <field name="config_id" ref="default_ai_config"/>
+            <field name="description">Detects physical access needs and suggests sub-tasks</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend Ticket Form with Problem Management -->
+    <record id="helpdesk_ticket_view_form_problem" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.problem</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_problems" type="object"
+                        class="oe_stat_button" icon="fa-bug"
+                        attrs="{'invisible': [('problem_count', '=', 0)]}">
+                    <field name="problem_count" widget="statinfo" string="Problems"/>
+                </button>
+                <button name="action_view_similar_tickets" type="object"
+                        class="oe_stat_button" icon="fa-copy"
+                        attrs="{'invisible': [('similar_ticket_count', '=', 0)]}">
+                    <field name="similar_ticket_count" widget="statinfo" string="Similar"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="known_error_id"/>
+                <field name="recurring_issue"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Problem Management" name="problem_mgmt">
+                    <group>
+                        <button name="action_create_problem" string="Create Problem" type="object"
+                                class="oe_highlight" icon="fa-bug"/>
+                        <button name="action_apply_known_error" string="Apply Known Error" type="object"
+                                class="btn-primary" icon="fa-book"/>
+                    </group>
+                    <group string="Related Problems">
+                        <field name="problem_ids" nolabel="1"/>
+                    </group>
+                    <group string="Similar Tickets" attrs="{'invisible': [('similar_ticket_count', '=', 0)]}">
+                        <field name="similar_ticket_ids" nolabel="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

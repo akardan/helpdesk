@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="helpdesk_ticket_view_form_knowledge" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.knowledge</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_knowledge_articles" type="object"
+                        class="oe_stat_button" icon="fa-book"
+                        attrs="{'invisible': [('article_count', '=', 0)]}">
+                    <field name="article_count" widget="statinfo" string="Articles"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

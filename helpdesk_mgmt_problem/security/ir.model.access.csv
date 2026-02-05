@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_helpdesk_problem_user,helpdesk.problem.user,model_helpdesk_problem,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_helpdesk_problem_manager,helpdesk.problem.manager,model_helpdesk_problem,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_helpdesk_known_error_user,helpdesk.known.error.user,model_helpdesk_known_error,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_helpdesk_known_error_manager,helpdesk.known.error.manager,model_helpdesk_known_error,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1

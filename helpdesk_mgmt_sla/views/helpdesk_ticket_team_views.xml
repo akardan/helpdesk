@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend Team Form View with SLA Management -->
+    <record id="helpdesk_ticket_team_view_form_sla" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.team.form.sla</field>
+        <field name="model">helpdesk.ticket.team</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_team_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add SLA Policies button -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_sla_policies" type="object"
+                        class="oe_stat_button" icon="fa-book">
+                    <field name="sla_policy_count" widget="statinfo" string="SLA Policies"/>
+                </button>
+            </xpath>
+
+            <!-- Add SLA Statistics to dashboard -->
+            <xpath expr="//group[@name='team_statistics']" position="inside">
+                <field name="sla_breached_count"/>
+                <field name="sla_at_risk_count"/>
+                <field name="sla_success_rate" widget="progressbar"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Team Kanban View with SLA Statistics -->
+    <record id="helpdesk_ticket_team_view_kanban_sla" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.team.kanban.sla</field>
+        <field name="model">helpdesk.ticket.team</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_team_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@class='row']" position="after">
+                <div class="row mt8">
+                    <div class="col-6">
+                        <a name="%(helpdesk_sla_status_action)d" type="action"
+                           context="{'search_default_team_id': active_id, 'search_default_breached': 1}">
+                            <field name="sla_breached_count"/> SLA Breached
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a name="%(helpdesk_sla_status_action)d" type="action"
+                           context="{'search_default_team_id': active_id, 'search_default_at_risk': 1}">
+                            <field name="sla_at_risk_count"/> At Risk
+                        </a>
+                    </div>
+                </div>
+                <div class="row mt4">
+                    <div class="col-12">
+                        <span>SLA Success Rate: </span>
+                        <field name="sla_success_rate" widget="progressbar"/>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

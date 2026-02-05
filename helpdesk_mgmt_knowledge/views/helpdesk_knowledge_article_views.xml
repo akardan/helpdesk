@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="knowledge_article_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.knowledge.article.form</field>
+        <field name="model">helpdesk.knowledge.article</field>
+        <field name="arch" type="xml">
+            <form string="Knowledge Article">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="number" readonly="1"/></h1>
+                        <h2><field name="name" placeholder="Article title..."/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="category_id"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                            <field name="author_id"/>
+                        </group>
+                        <group>
+                            <field name="public"/>
+                            <field name="team_ids" widget="many2many_tags"/>
+                            <field name="view_count"/>
+                            <field name="usage_score" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Content" name="content">
+                            <field name="description" placeholder="Short description..."/>
+                            <field name="content" placeholder="Article content..."/>
+                        </page>
+                        <page string="SEO &amp; Keywords" name="keywords">
+                            <field name="keywords"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="knowledge_article_action" model="ir.actions.act_window">
+        <field name="name">Knowledge Base</field>
+        <field name="res_model">helpdesk.knowledge.article</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_knowledge_base" name="Knowledge Base" parent="helpdesk_mgmt.helpdesk_ticket_menu" sequence="20"/>
+    <menuitem id="menu_knowledge_articles" name="Articles" parent="menu_knowledge_base" action="knowledge_article_action" sequence="10"/>
+</odoo>

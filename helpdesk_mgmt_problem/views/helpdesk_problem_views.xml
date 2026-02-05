@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Problem Form View -->
+    <record id="helpdesk_problem_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.problem.form</field>
+        <field name="model">helpdesk.problem</field>
+        <field name="arch" type="xml">
+            <form string="Problem">
+                <header>
+                    <button name="action_start_investigation" string="Start Investigation" type="object"
+                            states="identified" class="oe_highlight"/>
+                    <button name="action_root_cause_found" string="Root Cause Found" type="object"
+                            states="investigation" class="oe_highlight"/>
+                    <button name="action_resolve" string="Resolve" type="object"
+                            states="root_cause_found" class="oe_highlight"/>
+                    <button name="action_close" string="Close" type="object"
+                            states="resolved" class="oe_highlight"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            states="identified,investigation"/>
+                    <button name="action_create_known_error" string="Create Known Error" type="object"
+                            states="root_cause_found,resolved" class="btn-primary"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_tickets" type="object"
+                                class="oe_stat_button" icon="fa-ticket">
+                            <field name="ticket_count" widget="statinfo" string="Tickets"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="number" class="oe_edit_only"/>
+                        <h1>
+                            <field name="number" readonly="1"/>
+                        </h1>
+                        <label for="name"/>
+                        <h2>
+                            <field name="name" placeholder="Problem summary..."/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group name="main">
+                            <field name="team_id"/>
+                            <field name="team_user_ids" invisible="1"/>
+                            <field name="user_id"/>
+                            <field name="priority" widget="priority"/>
+                            <field name="business_impact"/>
+                        </group>
+                        <group name="classification">
+                            <field name="category_id"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                            <field name="affected_users_count"/>
+                            <field name="pattern_detected"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Detailed problem description..."/>
+                        </page>
+                        <page string="Root Cause Analysis" name="root_cause">
+                            <group>
+                                <field name="root_cause_date"/>
+                            </group>
+                            <field name="root_cause" placeholder="Root cause analysis..."/>
+                        </page>
+                        <page string="Solution &amp; Workaround" name="solution">
+                            <group>
+                                <group string="Workaround">
+                                    <field name="workaround" nolabel="1" placeholder="Temporary workaround..."/>
+                                </group>
+                                <group string="Permanent Solution">
+                                    <field name="solution" nolabel="1" placeholder="Permanent solution..."/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="AI Analysis" name="ai_analysis" attrs="{'invisible': [('pattern_detected', '=', False)]}">
+                            <group>
+                                <field name="ai_confidence_score" widget="progressbar"/>
+                                <field name="ai_suggested_solution"/>
+                            </group>
+                        </page>
+                        <page string="Related Tickets" name="tickets">
+                            <field name="ticket_ids" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Problem Tree View -->
+    <record id="helpdesk_problem_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.problem.tree</field>
+        <field name="model">helpdesk.problem</field>
+        <field name="arch" type="xml">
+            <tree string="Problems" decoration-danger="priority == '3'" decoration-warning="priority == '2'">
+                <field name="number"/>
+                <field name="name"/>
+                <field name="team_id"/>
+                <field name="user_id"/>
+                <field name="state"/>
+                <field name="priority" widget="priority"/>
+                <field name="ticket_count"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Problem Action -->
+    <record id="helpdesk_problem_action" model="ir.actions.act_window">
+        <field name="name">Problems</field>
+        <field name="res_model">helpdesk.problem</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_helpdesk_problem"
+              name="Problems"
+              parent="helpdesk_mgmt.helpdesk_ticket_menu"
+              action="helpdesk_problem_action"
+              sequence="15"/>
+
+</odoo>

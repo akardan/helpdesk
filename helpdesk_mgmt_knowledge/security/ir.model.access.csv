@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_knowledge_article_user,helpdesk.knowledge.article.user,model_helpdesk_knowledge_article,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_knowledge_article_manager,helpdesk.knowledge.article.manager,model_helpdesk_knowledge_article,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_knowledge_article_portal,helpdesk.knowledge.article.portal,model_helpdesk_knowledge_article,base.group_portal,1,0,0,0
+access_knowledge_category_user,helpdesk.knowledge.category.user,model_helpdesk_knowledge_category,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_knowledge_category_manager,helpdesk.knowledge.category.manager,model_helpdesk_knowledge_category,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1

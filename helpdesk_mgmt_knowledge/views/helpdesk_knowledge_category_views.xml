@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="knowledge_category_action" model="ir.actions.act_window">
+        <field name="name">Categories</field>
+        <field name="res_model">helpdesk.knowledge.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_knowledge_categories" name="Categories" parent="menu_knowledge_base" action="knowledge_category_action" sequence="20"/>
+</odoo>
