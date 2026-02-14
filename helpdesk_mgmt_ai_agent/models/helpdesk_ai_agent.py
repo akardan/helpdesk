@@ -9,8 +9,15 @@ _logger = logging.getLogger(__name__)
 
 class HelpdeskAIAgent(models.Model):
     """
-    AI Agent Orchestrator - Coordinates all AI operations for helpdesk
-    This is the main entry point for AI-powered automation
+    AI Agent Orchestrator - Coordinates all AI operations for helpdesk.
+
+    Processing pipeline:
+    1. Classify  → priority, category, tags
+    2. Knowledge → surface matching KB articles
+    3. Resolve   → attempt auto-close via KEDB
+    4. Route     → service-item → dept-type → category → fallback
+    5. Tasks     → create on-site tasks / apply service templates
+    6. Patterns  → detect recurring issues → problem record suggestion
     """
     _name = "helpdesk.ai.agent"
     _description = "Helpdesk AI Agent Orchestrator"
@@ -28,7 +35,6 @@ class HelpdeskAIAgent(models.Model):
     active = fields.Boolean(default=True)
     description = fields.Text(string="Description")
 
-    # Configuration
     config_id = fields.Many2one(
         "helpdesk.ai.agent.config",
         string="Configuration"
@@ -62,10 +68,12 @@ class HelpdeskAIAgent(models.Model):
             else:
                 agent.success_rate = 0.0
 
+    # ── Orchestrator ──────────────────────────────────────────────────────────
+
     @api.model
     def process_ticket_with_ai(self, ticket):
         """
-        Main orchestration method - processes a ticket through all enabled AI agents
+        Main orchestration method - processes a ticket through all enabled agents.
 
         Args:
             ticket: helpdesk.ticket record
@@ -73,7 +81,7 @@ class HelpdeskAIAgent(models.Model):
         Returns:
             dict: Results from all AI agents
         """
-        _logger.info(f"AI Agent Orchestrator: Processing ticket {ticket.number}")
+        _logger.info("AI Agent Orchestrator: Processing ticket %s", ticket.number)
 
         results = {
             'ticket_id': ticket.id,
@@ -103,7 +111,7 @@ class HelpdeskAIAgent(models.Model):
             results['auto_resolution'] = resolution_result
             results['agents_executed'].append('resolver')
 
-        # 4. If not auto-resolved, route to appropriate team/user
+        # 4. Route to appropriate team/user (skip if auto-resolved)
         if not results.get('auto_resolution', {}).get('resolved', False):
             router = self._get_active_agent('router')
             if router:
@@ -111,88 +119,161 @@ class HelpdeskAIAgent(models.Model):
                 results['routing'] = routing_result
                 results['agents_executed'].append('router')
 
-        # 5. Check if physical access is required and create sub-tasks
+        # 5. Physical-access sub-tasks + service item task templates
         subtask_creator = self._get_active_agent('subtask_creator')
         if subtask_creator:
             subtask_result = subtask_creator._check_and_create_subtasks(ticket)
             results['subtasks'] = subtask_result
             results['agents_executed'].append('subtask_creator')
+            if subtask_result.get('task_created'):
+                results['actions_taken'].append('onsite_task_created')
+            if subtask_result.get('template_applied'):
+                results['actions_taken'].append('task_template_applied')
 
-        # 6. Pattern Detection (async, doesn't block)
+        # 6. Pattern Detection (enrichment, non-blocking)
         pattern_detector = self._get_active_agent('pattern_detector')
         if pattern_detector:
             pattern_result = pattern_detector._detect_patterns(ticket)
             results['patterns'] = pattern_result
             results['agents_executed'].append('pattern_detector')
 
-        _logger.info(f"AI Agent Orchestrator: Completed processing ticket {ticket.number}")
-        _logger.debug(f"AI Agent Results: {json.dumps(results, indent=2)}")
+        _logger.info(
+            "AI Agent Orchestrator: Completed ticket %s | agents=%s | actions=%s",
+            ticket.number,
+            results['agents_executed'],
+            results['actions_taken'],
+        )
+        _logger.debug("AI Agent Results: %s", json.dumps(results, indent=2))
 
         return results
 
     def _get_active_agent(self, agent_type):
-        """Get active agent of specified type"""
+        """Get active agent of specified type."""
         return self.search([
             ('agent_type', '=', agent_type),
             ('active', '=', True)
         ], limit=1)
 
+    # ── Per-agent execution methods ───────────────────────────────────────────
+
     def _execute_classification(self, ticket):
-        """Execute classification logic - implemented in helpdesk_ai_classification.py"""
         return self.env['helpdesk.ai.classification'].classify_ticket(ticket)
 
     def _execute_knowledge_match(self, ticket):
-        """Execute knowledge matching - implemented in helpdesk_ai_knowledge_matcher.py"""
         return self.env['helpdesk.ai.knowledge.matcher'].match_articles(ticket)
 
     def _attempt_auto_resolution(self, ticket):
-        """Execute auto-resolution - implemented in helpdesk_ai_resolver.py"""
         return self.env['helpdesk.ai.resolver'].attempt_resolution(ticket)
 
     def _execute_routing(self, ticket):
-        """Execute smart routing - implemented in helpdesk_ai_routing.py"""
         return self.env['helpdesk.ai.routing'].route_ticket(ticket)
 
     def _check_and_create_subtasks(self, ticket):
-        """Check for physical access needs and create sub-tasks"""
-        # Check if description mentions physical access keywords
-        physical_keywords = [
-            'on-site', 'onsite', 'visit', 'physical',
-            'replace', 'install', 'hardware', 'cable',
-            'fiziksel', 'yerinde', 'ziyaret', 'kurulum'
-        ]
+        """
+        Determine physical-access requirements and act accordingly.
 
-        description_lower = (ticket.description or '').lower()
-        name_lower = (ticket.name or '').lower()
+        Detection priority:
+        1. Service item ``requires_physical_access`` flag (explicit)
+        2. Keyword scan of ticket name / description (heuristic)
 
-        requires_physical = any(
-            keyword in description_lower or keyword in name_lower
-            for keyword in physical_keywords
-        )
+        When physical access is confirmed:
+        - Creates a ``helpdesk.task`` record of type 'onsite' (if not already present)
+        - Posts a chatter notification
 
-        if requires_physical:
-            # Create sub-task for physical access
-            ticket.message_post(
-                body=_('AI Agent detected physical access requirement. '
-                       'Consider creating on-site visit task.'),
-                subject=_('Physical Access Required'),
-                message_type='notification'
+        Also applies task templates from service item when available.
+        """
+        physical_access_required = False
+        detected_keywords = []
+        task_created = False
+        template_applied = False
+
+        # ── Check 1: Service item explicit flag ──────────────────────────────
+        svc_item = getattr(ticket, 'service_item_id', False)
+        if svc_item and svc_item.requires_physical_access:
+            physical_access_required = True
+            _logger.debug(
+                "Physical access required via service item '%s' on ticket %s",
+                svc_item.name, ticket.number,
             )
 
-            return {
-                'physical_access_required': True,
-                'detected_keywords': [
-                    kw for kw in physical_keywords
-                    if kw in description_lower or kw in name_lower
-                ],
-                'suggestion': 'Create on-site visit task'
-            }
+        # ── Check 2: Keyword heuristic ───────────────────────────────────────
+        if not physical_access_required:
+            physical_keywords = [
+                'on-site', 'onsite', 'visit', 'physical',
+                'replace', 'install', 'hardware', 'cable',
+                'fiziksel', 'yerinde', 'ziyaret', 'kurulum',
+                'sahaya', 'saha', 'bakım', 'tamir',
+            ]
+            text = ' '.join([
+                (ticket.name or ''),
+                (ticket.description or ''),
+            ]).lower()
+            detected_keywords = [kw for kw in physical_keywords if kw in text]
+            if detected_keywords:
+                physical_access_required = True
+                _logger.debug(
+                    "Physical access detected via keywords %s on ticket %s",
+                    detected_keywords, ticket.number,
+                )
 
-        return {'physical_access_required': False}
+        # ── Create on-site task if needed ────────────────────────────────────
+        if physical_access_required:
+            # Avoid creating duplicate onsite tasks
+            existing_onsite = ticket.task_ids.filtered(
+                lambda t: t.task_type == 'onsite' and not t.parent_id
+            )
+            if not existing_onsite:
+                assignee_ids = [ticket.user_id.id] if ticket.user_id else []
+                self.env['helpdesk.task'].create({
+                    'name': _('On-Site Visit: %s') % ticket.name,
+                    'ticket_id': ticket.id,
+                    'task_type': 'onsite',
+                    'state': 'draft',
+                    'user_ids': [(6, 0, assignee_ids)],
+                    'location': getattr(ticket.partner_id, 'city', '') or '',
+                })
+                task_created = True
+                ticket.message_post(
+                    body=_(
+                        'AI Agent automatically created an on-site visit task '
+                        'because physical access is required for this ticket.'
+                    ),
+                    subject=_('On-Site Task Created'),
+                    message_type='notification',
+                )
+                _logger.info(
+                    "AI Agent created onsite task for ticket %s", ticket.number
+                )
+
+        # ── Apply service item task template (if any) ─────────────────────
+        # Only attempt if the ticket has no tasks yet (fresh ticket)
+        if svc_item and not ticket.task_ids:
+            template_tasks = self.env['helpdesk.task'].search([
+                ('is_template', '=', True),
+                ('parent_id', '=', False),
+            ])
+            # Match template by service item name (convention-based lookup)
+            matching_template = template_tasks.filtered(
+                lambda t: t.name.lower() in svc_item.name.lower() or
+                          svc_item.name.lower() in t.name.lower()
+            )
+            if matching_template:
+                ticket.apply_template_tasks(matching_template[:1].ids)
+                template_applied = True
+                _logger.info(
+                    "AI Agent applied task template '%s' to ticket %s",
+                    matching_template[0].name, ticket.number,
+                )
+
+        return {
+            'physical_access_required': physical_access_required,
+            'detected_keywords': detected_keywords,
+            'task_created': task_created,
+            'template_applied': template_applied,
+        }
 
     def _detect_patterns(self, ticket):
-        """Detect recurring patterns"""
-        # Find similar tickets
+        """Detect recurring patterns and suggest Problem record creation."""
         similar_tickets = self.env['helpdesk.ticket'].search([
             ('category_id', '=', ticket.category_id.id),
             ('id', '!=', ticket.id),
@@ -200,28 +281,27 @@ class HelpdeskAIAgent(models.Model):
         ], limit=10)
 
         if len(similar_tickets) >= 3:
-            # Mark as potential recurring issue
-            ticket.write({'recurring_issue': True})
-
-            # Link similar tickets
             ticket.write({
-                'similar_ticket_ids': [(6, 0, similar_tickets.ids)]
+                'recurring_issue': True,
+                'similar_ticket_ids': [(6, 0, similar_tickets.ids)],
             })
 
             return {
                 'pattern_detected': True,
                 'similar_ticket_count': len(similar_tickets),
-                'suggestion': 'Consider creating a Problem record'
+                'suggestion': 'Consider creating a Problem record',
             }
 
         return {'pattern_detected': False}
 
+    # ── Cron ─────────────────────────────────────────────────────────────────
+
     @api.model
     def cron_process_unclassified_tickets(self):
-        """Cron job to process tickets that haven't been processed by AI"""
+        """Process tickets that haven't been processed by AI yet."""
         tickets = self.env['helpdesk.ticket'].search([
             ('stage_id.closed', '=', False),
-            ('ai_processed', '=', False)
+            ('ai_processed', '=', False),
         ], limit=50)
 
         for ticket in tickets:
@@ -229,4 +309,7 @@ class HelpdeskAIAgent(models.Model):
                 self.process_ticket_with_ai(ticket)
                 ticket.write({'ai_processed': True})
             except Exception as e:
-                _logger.error(f"Error processing ticket {ticket.number} with AI: {str(e)}")
+                _logger.error(
+                    "Error processing ticket %s with AI: %s",
+                    ticket.number, str(e),
+                )

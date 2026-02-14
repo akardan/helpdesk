@@ -1,6 +1,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 
 class HelpdeskTicket(models.Model):
@@ -9,7 +9,8 @@ class HelpdeskTicket(models.Model):
     ai_processed = fields.Boolean(
         string="AI Processed",
         default=False,
-        help="Has been processed by AI agents"
+        help="Has been processed by AI agents",
+        tracking=True,
     )
 
     ai_classification_confidence = fields.Float(
@@ -27,14 +28,28 @@ class HelpdeskTicket(models.Model):
 
     @api.model
     def create(self, vals):
-        """Trigger AI processing on ticket creation"""
+        """Trigger AI processing on ticket creation when auto-process is enabled."""
         ticket = super().create(vals)
 
-        # Check if auto-processing is enabled
         config = self.env['helpdesk.ai.agent.config'].search([], limit=1)
         if config and config.auto_process_new_tickets:
-            # Process with AI agents
             self.env['helpdesk.ai.agent'].process_ticket_with_ai(ticket)
             ticket.write({'ai_processed': True})
 
         return ticket
+
+    def action_run_ai_agents(self):
+        """Manually trigger AI agent pipeline for this ticket."""
+        self.ensure_one()
+        self.env['helpdesk.ai.agent'].process_ticket_with_ai(self)
+        self.write({'ai_processed': True})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('AI Agents'),
+                'message': _('AI agents have finished processing ticket %s.') % self.number,
+                'type': 'success',
+                'sticky': False,
+            },
+        }

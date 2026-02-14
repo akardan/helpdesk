@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="helpdesk_dept_stage_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.department.stage.tree</field>
+        <field name="model">helpdesk.department.stage</field>
+        <field name="arch" type="xml">
+            <tree string="Stage Templates">
+                <field name="sequence" widget="handle"/>
+                <field name="department_type"/>
+                <field name="name"/>
+                <field name="unattended"/>
+                <field name="closed"/>
+                <field name="fold"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="helpdesk_dept_stage_action" model="ir.actions.act_window">
+        <field name="name">Stage Templates</field>
+        <field name="res_model">helpdesk.department.stage</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_dept_stage_templates"
+              name="Stage Templates"
+              parent="helpdesk_mgmt.helpdesk_ticket_menu_config"
+              action="helpdesk_dept_stage_action"
+              sequence="30"/>
+</odoo>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="svc_item_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.service.item.tree</field>
+        <field name="model">helpdesk.service.item</field>
+        <field name="arch" type="xml">
+            <tree><field name="sequence" widget="handle"/><field name="name"/>
+                  <field name="service_category_id"/><field name="department_type"/>
+                  <field name="sla_response_hours"/><field name="sla_resolution_hours"/>
+                  <field name="requires_approval"/><field name="requires_physical_access"/>
+                  <field name="ticket_count"/></tree>
+        </field>
+    </record>
+
+    <record id="svc_item_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.service.item.form</field>
+        <field name="model">helpdesk.service.item</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Service name..."/></h1>
+                    </div>
+                    <group>
+                        <group string="Classification">
+                            <field name="service_category_id"/>
+                            <field name="department_type" readonly="1"/>
+                            <field name="code"/>
+                            <field name="sequence"/>
+                            <field name="portal_visible"/>
+                        </group>
+                        <group string="Routing &amp; Assignment">
+                            <field name="team_id"/>
+                            <field name="default_user_id"/>
+                            <field name="default_priority"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="SLA Targets">
+                            <field name="sla_response_hours"/>
+                            <field name="sla_resolution_hours"/>
+                            <field name="estimated_duration"/>
+                        </group>
+                        <group string="Approval">
+                            <field name="requires_approval"/>
+                            <field name="approval_user_id" invisible="not requires_approval"/>
+                            <field name="approval_stage_id" invisible="not requires_approval"/>
+                        </group>
+                    </group>
+                    <group string="Physical Access">
+                        <field name="requires_physical_access"/>
+                    </group>
+                    <notebook>
+                        <page string="Description"><field name="description"/></page>
+                        <page string="Checklist Template">
+                            <field name="checklist_template" widget="text" placeholder="One item per line..."/>
+                        </page>
+                        <page string="Fulfillment Instructions">
+                            <field name="fulfillment_instructions"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="svc_item_action" model="ir.actions.act_window">
+        <field name="name">Service Items</field>
+        <field name="res_model">helpdesk.service.item</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_service_items" name="Services"
+              parent="menu_service_catalog_root"
+              action="svc_item_action" sequence="20"/>
+</odoo>

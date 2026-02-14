@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_service_category_user,helpdesk.service.category.user,model_helpdesk_service_category,helpdesk_mgmt.group_helpdesk_user,1,0,0,0
+access_service_category_manager,helpdesk.service.category.manager,model_helpdesk_service_category,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_service_category_portal,helpdesk.service.category.portal,model_helpdesk_service_category,base.group_portal,1,0,0,0
+access_service_item_user,helpdesk.service.item.user,model_helpdesk_service_item,helpdesk_mgmt.group_helpdesk_user,1,0,0,0
+access_service_item_manager,helpdesk.service.item.manager,model_helpdesk_service_item,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_service_item_portal,helpdesk.service.item.portal,model_helpdesk_service_item,base.group_portal,1,0,0,0
+access_checklist_user,helpdesk.ticket.checklist.user,model_helpdesk_ticket_checklist,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_checklist_manager,helpdesk.ticket.checklist.manager,model_helpdesk_ticket_checklist,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1

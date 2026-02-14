@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend ticket form with service catalog fields -->
+    <record id="helpdesk_ticket_view_form_svc" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.service_catalog</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Service selector near the top -->
+            <xpath expr="//field[@name='category_id']" position="before">
+                <field name="service_item_id"/>
+                <field name="service_category_id" readonly="1"/>
+            </xpath>
+
+            <!-- Approval status in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_approve" string="Approve" type="object"
+                        class="oe_highlight"
+                        invisible="approval_state != 'pending'"/>
+                <button name="action_reject" string="Reject" type="object"
+                        invisible="approval_state != 'pending'"/>
+                <field name="approval_state" widget="statusbar"
+                       statusbar_visible="not_required,pending,approved,rejected"
+                       invisible="approval_state == 'not_required'"/>
+            </xpath>
+
+            <!-- Approval group in form body -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="approver_id" invisible="approval_state == 'not_required'"/>
+            </xpath>
+
+            <!-- Checklist tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Checklist" name="checklist"
+                      invisible="not checklist_ids">
+                    <field name="checklist_progress" widget="progressbar"/>
+                    <field name="checklist_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="done" widget="boolean_toggle"/>
+                            <field name="done_by_id" readonly="1"/>
+                            <field name="done_date" readonly="1"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add service filter + group by to search -->
+    <record id="helpdesk_ticket_search_svc" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.service_catalog</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <filter name="group_service" string="Service" context="{'group_by':'service_item_id'}"/>
+                <filter name="group_service_cat" string="Service Category" context="{'group_by':'service_category_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

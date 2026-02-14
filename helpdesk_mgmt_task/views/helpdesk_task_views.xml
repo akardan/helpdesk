@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ── Task Kanban ───────────────────────────────────────────────────── -->
+    <record id="helpdesk_task_view_kanban" model="ir.ui.view">
+        <field name="name">helpdesk.task.kanban</field>
+        <field name="model">helpdesk.task</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false">
+                <field name="name"/><field name="state"/><field name="user_ids"/>
+                <field name="task_type"/><field name="color"/><field name="child_count"/>
+                <field name="date_deadline"/><field name="priority"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title"><field name="name"/></strong>
+                                </div>
+                                <field name="priority" widget="priority"/>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="task_type" widget="badge"/>
+                                <span t-if="record.child_count.raw_value > 0" class="ml4 text-muted">
+                                    <i class="fa fa-sitemap"/> <t t-esc="record.child_count.raw_value"/> sub-tasks
+                                </span>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <field name="user_ids" widget="many2many_avatar_user"/>
+                                <span t-if="record.date_deadline.raw_value" class="text-muted">
+                                    <i class="fa fa-clock-o"/> <field name="date_deadline" widget="date"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ── Task Tree ────────────────────────────────────────────────────── -->
+    <record id="helpdesk_task_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.task.tree</field>
+        <field name="model">helpdesk.task</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="state == 'done'" decoration-danger="state == 'blocked'">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="task_type"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'blocked'"
+                       decoration-info="state == 'in_progress'"/>
+                <field name="user_ids" widget="many2many_avatar_user"/>
+                <field name="date_deadline"/>
+                <field name="child_count" string="Sub-Tasks"/>
+                <field name="subtask_progress" widget="progressbar" optional="show"/>
+                <button name="action_start" string="Start" type="object"
+                        invisible="state != 'draft'" class="btn-primary btn-sm"/>
+                <button name="action_done" string="Done" type="object"
+                        invisible="state not in ('draft','in_progress')" class="btn-success btn-sm"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Task Form ────────────────────────────────────────────────────── -->
+    <record id="helpdesk_task_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.task.form</field>
+        <field name="model">helpdesk.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start"   string="Start"    type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_done"    string="Mark Done" type="object" class="oe_highlight" invisible="state not in ('draft','in_progress')"/>
+                    <button name="action_cancel"  string="Cancel"   type="object"  invisible="state in ('done','cancelled')"/>
+                    <button name="action_reset"   string="Reset"    type="object"  invisible="state not in ('done','cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_tasks" type="object"
+                                class="oe_stat_button" icon="fa-sitemap"
+                                invisible="child_count == 0">
+                            <field name="child_count" widget="statinfo" string="Sub-Tasks"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <field name="priority" widget="priority"/>
+                        <h1><field name="name" placeholder="Task name..."/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="ticket_id"/>
+                            <field name="parent_id"/>
+                            <field name="task_type"/>
+                            <field name="location" invisible="task_type != 'onsite'"/>
+                            <field name="milestone_id"/>
+                        </group>
+                        <group>
+                            <field name="user_ids" widget="many2many_tags"/>
+                            <field name="date_deadline"/>
+                            <field name="date_start"/>
+                            <field name="planned_hours" widget="float_time"/>
+                            <field name="effective_hours" widget="float_time"/>
+                            <field name="is_template"/>
+                        </group>
+                    </group>
+                    <group string="Dependencies" invisible="not blocked_by_ids">
+                        <field name="blocked_by_ids" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Sub-Tasks" name="subtasks">
+                            <field name="subtask_progress" widget="progressbar"/>
+                            <field name="child_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="task_type"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="user_ids" widget="many2many_tags"/>
+                                    <field name="date_deadline"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Milestone Views ──────────────────────────────────────────────── -->
+    <record id="helpdesk_milestone_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.task.milestone.tree</field>
+        <field name="model">helpdesk.task.milestone</field>
+        <field name="arch" type="xml">
+            <tree><field name="name"/><field name="date_deadline"/>
+                  <field name="task_count"/><field name="reached"/></tree>
+        </field>
+    </record>
+
+    <!-- ── Actions & Menus ──────────────────────────────────────────────── -->
+    <record id="helpdesk_task_action" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">helpdesk.task</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[("parent_id","=",False),("is_template","=",False)]</field>
+    </record>
+
+    <record id="helpdesk_task_template_action" model="ir.actions.act_window">
+        <field name="name">Task Templates</field>
+        <field name="res_model">helpdesk.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[("is_template","=",True),("parent_id","=",False)]</field>
+    </record>
+
+    <menuitem id="menu_helpdesk_tasks"
+              name="Tasks"
+              parent="helpdesk_mgmt.helpdesk_ticket_menu"
+              action="helpdesk_task_action"
+              sequence="12"/>
+    <menuitem id="menu_task_templates"
+              name="Task Templates"
+              parent="helpdesk_mgmt.helpdesk_ticket_menu_config"
+              action="helpdesk_task_template_action"
+              sequence="40"/>
+</odoo>

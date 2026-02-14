@@ -16,6 +16,9 @@
         "helpdesk_mgmt_sla",
         "helpdesk_mgmt_problem",
         "helpdesk_mgmt_knowledge",
+        "helpdesk_mgmt_department",
+        "helpdesk_mgmt_service_catalog",
+        "helpdesk_mgmt_task",
     ],
     "data": [
         "security/ir.model.access.csv",

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_helpdesk_task_user,helpdesk.task.user,model_helpdesk_task,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_helpdesk_task_manager,helpdesk.task.manager,model_helpdesk_task,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_helpdesk_task_milestone_user,helpdesk.task.milestone.user,model_helpdesk_task_milestone,helpdesk_mgmt.group_helpdesk_user,1,1,1,0
+access_helpdesk_task_milestone_manager,helpdesk.task.milestone.manager,model_helpdesk_task_milestone,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1

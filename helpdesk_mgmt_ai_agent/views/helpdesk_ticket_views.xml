@@ -5,15 +5,58 @@
         <field name="model">helpdesk.ticket</field>
         <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_form"/>
         <field name="arch" type="xml">
+
+            <!-- Manual AI processing button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_run_ai_agents" string="Run AI Agents"
+                        type="object" icon="fa-robot"
+                        invisible="ai_processed"/>
+            </xpath>
+
+            <!-- AI smart button in stat box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_run_ai_agents" type="object"
+                        class="oe_stat_button" icon="fa-robot"
+                        invisible="not ai_processed">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">AI</span>
+                        <span class="o_stat_value">
+                            <field name="ai_classification_confidence" widget="float"/>%
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- AI Analysis tab (shown once processed) -->
             <xpath expr="//notebook" position="inside">
-                <page string="AI Analysis" name="ai_analysis" attrs="{'invisible': [('ai_processed', '=', False)]}">
+                <page string="AI Analysis" name="ai_analysis"
+                      invisible="not ai_processed">
                     <group>
-                        <field name="ai_processed"/>
-                        <field name="ai_classification_confidence" widget="progressbar"/>
-                        <field name="ai_routing_confidence" widget="progressbar"/>
-                        <field name="ai_suggestions"/>
+                        <group string="Status">
+                            <field name="ai_processed"/>
+                            <field name="ai_classification_confidence" widget="progressbar"/>
+                            <field name="ai_routing_confidence" widget="progressbar"/>
+                        </group>
+                        <group string="Suggestions">
+                            <field name="ai_suggestions" nolabel="1"/>
+                        </group>
                     </group>
                 </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search view: filter by AI processed state -->
+    <record id="helpdesk_ticket_search_ai" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.ai</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_ticket']" position="after">
+                <filter name="not_ai_processed" string="Pending AI Analysis"
+                        domain="[('ai_processed','=',False),('stage_id.closed','=',False)]"/>
+                <filter name="ai_processed" string="AI Processed"
+                        domain="[('ai_processed','=',True)]"/>
             </xpath>
         </field>
     </record>

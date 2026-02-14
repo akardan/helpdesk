@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+<!-- Template: New Employee Onboarding (HR) -->
+<record id="tpl_onboarding" model="helpdesk.task">
+    <field name="name">New Employee Onboarding</field>
+    <field name="is_template" eval="True"/>
+    <field name="description">&lt;p&gt;Full onboarding checklist for a new employee.&lt;/p&gt;</field>
+</record>
+<record id="tpl_onboarding_it" model="helpdesk.task">
+    <field name="name">IT Setup</field>
+    <field name="parent_id" ref="tpl_onboarding"/>
+    <field name="is_template" eval="True"/>
+    <field name="task_type">general</field>
+</record>
+<record id="tpl_onboarding_laptop" model="helpdesk.task">
+    <field name="name">Deliver Laptop</field>
+    <field name="parent_id" ref="tpl_onboarding_it"/>
+    <field name="is_template" eval="True"/>
+    <field name="task_type">onsite</field>
+</record>
+<record id="tpl_onboarding_access" model="helpdesk.task">
+    <field name="name">Create System Accounts</field>
+    <field name="parent_id" ref="tpl_onboarding_it"/>
+    <field name="is_template" eval="True"/>
+</record>
+<record id="tpl_onboarding_hr" model="helpdesk.task">
+    <field name="name">HR Documentation</field>
+    <field name="parent_id" ref="tpl_onboarding"/>
+    <field name="is_template" eval="True"/>
+</record>
+<record id="tpl_onboarding_badge" model="helpdesk.task">
+    <field name="name">Issue Access Badge</field>
+    <field name="parent_id" ref="tpl_onboarding_hr"/>
+    <field name="is_template" eval="True"/>
+    <field name="task_type">onsite</field>
+</record>
+
+<!-- Template: Office Move (Facilities) -->
+<record id="tpl_office_move" model="helpdesk.task">
+    <field name="name">Office Move / Relocation</field>
+    <field name="is_template" eval="True"/>
+</record>
+<record id="tpl_move_assess" model="helpdesk.task">
+    <field name="name">Site Assessment</field>
+    <field name="parent_id" ref="tpl_office_move"/>
+    <field name="is_template" eval="True"/>
+    <field name="task_type">onsite</field>
+</record>
+<record id="tpl_move_it" model="helpdesk.task">
+    <field name="name">IT Infrastructure Relocation</field>
+    <field name="parent_id" ref="tpl_office_move"/>
+    <field name="is_template" eval="True"/>
+    <field name="task_type">onsite</field>
+</record>
+<record id="tpl_move_cleanup" model="helpdesk.task">
+    <field name="name">Old Office Cleanup</field>
+    <field name="parent_id" ref="tpl_office_move"/>
+    <field name="is_template" eval="True"/>
+    <field name="task_type">onsite</field>
+</record>
+</data>
+</odoo>
