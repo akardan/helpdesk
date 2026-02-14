@@ -10,8 +10,10 @@ class HelpdeskAIRouting(models.AbstractModel):
     """AI-powered intelligent ticket routing and assignment.
 
     Routing priority chain:
-    1. Service item defines target team  (helpdesk_mgmt_service_catalog)
-    2. Department type match             (helpdesk_mgmt_department)
+    1. Service item defines target team          (helpdesk_mgmt_service_catalog)
+    2. HR department match (hr.department M2O)   (helpdesk_mgmt_department)
+       2a. Direct department match
+       2b. Parent department fallback
     3. Category expertise match
     4. Lowest-load team fallback
     """
@@ -83,18 +85,30 @@ class HelpdeskAIRouting(models.AbstractModel):
                 )
                 return svc_team
 
-        # ── Priority 2: Department type match ────────────────────────────────
-        # Available when helpdesk_mgmt_department is installed
-        dept_type = getattr(ticket, 'department_type', False)
-        if dept_type:
-            dept_teams = Team.search([('department_type', '=', dept_type)])
+        # ── Priority 2: HR Department match ──────────────────────────────────
+        # Available when helpdesk_mgmt_department is installed (uses hr.department)
+        hr_dept = getattr(ticket, 'hr_department_id', False)
+        if hr_dept:
+            dept_teams = Team.search([('hr_department_id', '=', hr_dept.id)])
             if dept_teams:
                 best = min(dept_teams, key=lambda t: t.todo_ticket_count)
                 _logger.debug(
-                    "Routing via department type '%s' → team '%s'",
-                    dept_type, best.name,
+                    "Routing via HR department '%s' → team '%s'",
+                    hr_dept.name, best.name,
                 )
                 return best
+            # Fallback: try parent department if no direct match
+            if hr_dept.parent_id:
+                parent_teams = Team.search([
+                    ('hr_department_id', '=', hr_dept.parent_id.id)
+                ])
+                if parent_teams:
+                    best = min(parent_teams, key=lambda t: t.todo_ticket_count)
+                    _logger.debug(
+                        "Routing via parent HR department '%s' → team '%s'",
+                        hr_dept.parent_id.name, best.name,
+                    )
+                    return best
 
         # ── Priority 3: Category expertise match ─────────────────────────────
         if ticket.category_id:

@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Extend team form -->
+    <!-- Extend team form: add HR department link + Create Default Stages button -->
     <record id="helpdesk_ticket_team_view_form_dept" model="ir.ui.view">
         <field name="name">helpdesk.ticket.team.form.dept</field>
         <field name="model">helpdesk.ticket.team</field>
         <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_team_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="department_type"/>
                 <field name="hr_department_id"/>
             </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_create_default_stages" type="object"
                         string="Create Default Stages" class="oe_stat_button"
                         icon="fa-list-ol"
-                        help="Bootstrap per-team stages for this department type"/>
+                        help="Bootstrap a stage pipeline for this team based on the linked HR department"/>
             </xpath>
-            <!-- Stages and escalation tabs inside form -->
+            <!-- Stages and escalation tabs -->
             <xpath expr="//notebook" position="inside">
                 <page string="Stages" name="dept_stages">
                     <field name="stage_ids" widget="many2many_tags"/>
                     <p class="text-muted">
                         Stages restricted to this team. If empty, the team uses global shared stages.
-                        Use "Create Default Stages" to generate a stage set matching your department type.
+                        Use "Create Default Stages" to generate a stage set matching your HR department.
                     </p>
                 </page>
                 <page string="Cross-Department" name="cross_dept">
@@ -34,15 +33,15 @@
         </field>
     </record>
 
-    <!-- Extend team kanban: show dept type badge -->
+    <!-- Extend team kanban: show HR department name as badge -->
     <record id="helpdesk_ticket_team_view_kanban_dept" model="ir.ui.view">
         <field name="name">helpdesk.ticket.team.kanban.dept</field>
         <field name="model">helpdesk.ticket.team</field>
         <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_team_view_kanban"/>
         <field name="arch" type="xml">
             <xpath expr="//div[hasclass('oe_kanban_card')]" position="inside">
-                <div class="o_field_badge mt4">
-                    <field name="department_type" widget="badge"/>
+                <div class="o_field_badge mt4" invisible="not hr_department_id">
+                    <field name="hr_department_id" widget="badge"/>
                 </div>
             </xpath>
         </field>

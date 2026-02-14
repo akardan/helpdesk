@@ -4,30 +4,24 @@ from odoo import fields, models
 
 
 class HelpdeskDepartmentStage(models.Model):
-    """Stage *template* catalogue: pre-defined stage sets grouped by department
-    type so teams can bootstrap their own private stage pipelines quickly."""
+    """Stage template catalogue: administrators define stage pipelines
+    per HR department so teams can bootstrap their own Kanban stages quickly."""
 
     _name = "helpdesk.department.stage"
-    _description = "Helpdesk Department Stage Template"
-    _order = "department_type, sequence"
+    _description = "Helpdesk Stage Template"
+    _order = "hr_department_id, sequence"
 
     name = fields.Char(string="Stage Name", required=True, translate=True)
     sequence = fields.Integer(default=10)
 
-    department_type = fields.Selection(
-        [
-            ("it", "Information Technology"),
-            ("hr", "Human Resources"),
-            ("finance", "Finance & Accounting"),
-            ("facilities", "Facilities & Maintenance"),
-            ("legal", "Legal & Compliance"),
-            ("marketing", "Marketing & Communications"),
-            ("logistics", "Logistics & Supply Chain"),
-            ("customer_service", "Customer Service"),
-            ("general", "General Services"),
-        ],
-        string="Department Type",
-        required=True,
+    # ── Link to actual HR department ──────────────────────────────────────────
+    hr_department_id = fields.Many2one(
+        "hr.department",
+        string="Department",
+        ondelete="cascade",
+        index=True,
+        help="The HR department this stage template belongs to. "
+             "Leave empty to mark as a generic / shared template.",
     )
 
     unattended = fields.Boolean(

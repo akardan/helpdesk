@@ -2,10 +2,16 @@
 <odoo>
 <data noupdate="1">
 
-<!-- IT Service Categories -->
+<!--
+    Service categories are linked to hr.department records.
+    Since hr.department records are company-specific they cannot be
+    referenced here. Link each category to your department after installation
+    via the Service Catalog > Catalog menu.
+-->
+
+<!-- IT Service Category -->
 <record id="svc_cat_it" model="helpdesk.service.category">
     <field name="name">IT Services</field>
-    <field name="department_type">it</field>
     <field name="icon">fa-laptop</field>
     <field name="sequence">10</field>
 </record>
@@ -49,10 +55,9 @@ Notify requester</field>
     <field name="sla_resolution_hours">1.0</field>
 </record>
 
-<!-- HR Service Categories -->
+<!-- HR Service Category -->
 <record id="svc_cat_hr" model="helpdesk.service.category">
     <field name="name">HR Services</field>
-    <field name="department_type">hr</field>
     <field name="icon">fa-users</field>
     <field name="sequence">20</field>
 </record>
@@ -75,10 +80,9 @@ Notify requester</field>
     <field name="sla_resolution_hours">24.0</field>
 </record>
 
-<!-- Facilities Service Categories -->
+<!-- Facilities Service Category -->
 <record id="svc_cat_facilities" model="helpdesk.service.category">
     <field name="name">Facilities Services</field>
-    <field name="department_type">facilities</field>
     <field name="icon">fa-building</field>
     <field name="sequence">30</field>
 </record>
@@ -105,10 +109,9 @@ Verify with requester</field>
     <field name="sla_resolution_hours">4.0</field>
 </record>
 
-<!-- Finance Service Categories -->
+<!-- Finance Service Category -->
 <record id="svc_cat_finance" model="helpdesk.service.category">
     <field name="name">Finance Services</field>
-    <field name="department_type">finance</field>
     <field name="icon">fa-money</field>
     <field name="sequence">40</field>
 </record>

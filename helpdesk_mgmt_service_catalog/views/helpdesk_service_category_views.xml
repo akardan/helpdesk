@@ -5,8 +5,11 @@
         <field name="model">helpdesk.service.category</field>
         <field name="arch" type="xml">
             <kanban>
-                <field name="name"/><field name="department_type"/><field name="icon"/>
-                <field name="service_item_count"/><field name="color"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="icon"/>
+                <field name="service_item_count"/>
+                <field name="color"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_color_#{record.color.raw_value} oe_kanban_card oe_kanban_global_click">
@@ -15,7 +18,7 @@
                                 <strong><field name="name"/></strong>
                             </div>
                             <div class="o_kanban_record_bottom">
-                                <field name="department_type" widget="badge"/>
+                                <field name="department_id" widget="badge"/>
                                 <span class="ml8"><field name="service_item_count"/> services</span>
                             </div>
                         </div>
@@ -29,9 +32,13 @@
         <field name="name">helpdesk.service.category.tree</field>
         <field name="model">helpdesk.service.category</field>
         <field name="arch" type="xml">
-            <tree><field name="sequence" widget="handle"/><field name="name"/>
-                  <field name="department_type"/><field name="team_id"/>
-                  <field name="service_item_count"/></tree>
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="team_id"/>
+                <field name="service_item_count"/>
+            </tree>
         </field>
     </record>
 
@@ -46,7 +53,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="department_type"/>
+                            <field name="department_id"/>
                             <field name="team_id"/>
                             <field name="icon"/>
                             <field name="sequence"/>
@@ -58,9 +65,13 @@
                     <field name="description" placeholder="Describe this service category..."/>
                     <separator string="Service Items"/>
                     <field name="service_item_ids">
-                        <tree><field name="sequence" widget="handle"/>
-                              <field name="name"/><field name="sla_resolution_hours"/>
-                              <field name="requires_approval"/><field name="requires_physical_access"/></tree>
+                        <tree>
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="sla_resolution_hours"/>
+                            <field name="requires_approval"/>
+                            <field name="requires_physical_access"/>
+                        </tree>
                     </field>
                 </sheet>
             </form>
@@ -74,9 +85,9 @@
     </record>
 
     <!-- Top-level menu entry for the service catalog -->
-    <menuitem id="menu_service_catalog_root"  name="Service Catalog"
+    <menuitem id="menu_service_catalog_root" name="Service Catalog"
               parent="helpdesk_mgmt.helpdesk_ticket_menu" sequence="5"/>
-    <menuitem id="menu_service_catalog"       name="Catalog"
+    <menuitem id="menu_service_catalog" name="Catalog"
               parent="menu_service_catalog_root"
               action="svc_cat_action" sequence="10"/>
 </odoo>

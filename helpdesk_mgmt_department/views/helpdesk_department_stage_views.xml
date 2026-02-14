@@ -6,12 +6,36 @@
         <field name="arch" type="xml">
             <tree string="Stage Templates">
                 <field name="sequence" widget="handle"/>
-                <field name="department_type"/>
+                <field name="hr_department_id"/>
                 <field name="name"/>
                 <field name="unattended"/>
                 <field name="closed"/>
                 <field name="fold"/>
             </tree>
+        </field>
+    </record>
+
+    <record id="helpdesk_dept_stage_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.department.stage.form</field>
+        <field name="model">helpdesk.department.stage</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="hr_department_id"/>
+                        </group>
+                        <group>
+                            <field name="unattended"/>
+                            <field name="closed"/>
+                            <field name="fold"/>
+                        </group>
+                    </group>
+                    <field name="description" placeholder="Notes…"/>
+                </sheet>
+            </form>
         </field>
     </record>
 

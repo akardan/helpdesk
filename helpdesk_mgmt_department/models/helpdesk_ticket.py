@@ -1,27 +1,27 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 
 class HelpdeskTicket(models.Model):
     _inherit = "helpdesk.ticket"
 
-    # ── Department shortcuts ───────────────────────────────────────────────────
-    department_type = fields.Selection(
-        related="team_id.department_type",
-        string="Department Type",
-        store=True,
-        readonly=True,
-    )
-
+    # ── Department (derived from the team's hr.department link) ───────────────
     hr_department_id = fields.Many2one(
         related="team_id.hr_department_id",
-        string="HR Department",
+        string="Department",
         store=True,
         readonly=True,
     )
 
-    # ── Cross-department transfer ──────────────────────────────────────────────
+    hr_department_manager_id = fields.Many2one(
+        related="team_id.hr_department_id.manager_id.user_id",
+        string="Department Manager",
+        store=False,
+        readonly=True,
+    )
+
+    # ── Cross-department transfer history ─────────────────────────────────────
     transferred_from_team_id = fields.Many2one(
         "helpdesk.ticket.team",
         string="Transferred From",
@@ -48,44 +48,36 @@ class HelpdeskTicket(models.Model):
             if ticket.team_id and ticket.team_id.stage_ids:
                 ticket.available_stage_ids = ticket.team_id.stage_ids
             else:
-                # Fall back to global stages (no team restriction)
+                # Fall back to globally shared stages (no team restriction)
                 ticket.available_stage_ids = all_stages.filtered(
                     lambda s: not s.team_ids
                 )
 
     @api.onchange("team_id")
     def _onchange_team_id_stage(self):
-        """Reset stage to first available stage of new team."""
+        """Reset stage to first available stage of the new team."""
         if self.team_id and self.team_id.stage_ids:
             self.stage_id = self.team_id.stage_ids.sorted("sequence")[:1]
-
-    def action_transfer_to_department(self):
-        """Open wizard to transfer ticket to another department team."""
-        self.ensure_one()
-        return {
-            "name": "Transfer to Department",
-            "type": "ir.actions.act_window",
-            "res_model": "helpdesk.ticket",
-            "view_mode": "form",
-            "res_id": self.id,
-            "views": [(False, "form")],
-            "target": "new",
-        }
 
     def do_transfer(self, target_team_id, reason=""):
         """Transfer this ticket to another team/department."""
         for ticket in self:
             old_team = ticket.team_id
-            ticket.write(
-                {
-                    "transferred_from_team_id": old_team.id,
-                    "transfer_reason": reason,
-                    "team_id": target_team_id,
-                    "user_id": False,
-                }
-            )
+            ticket.write({
+                "transferred_from_team_id": old_team.id,
+                "transfer_reason": reason,
+                "team_id": target_team_id,
+                "user_id": False,
+            })
+            old_dept = old_team.hr_department_id.name or old_team.name
+            new_dept = ticket.team_id.hr_department_id.name or ticket.team_id.name
             ticket.message_post(
-                body=f"Ticket transferred from <b>{old_team.name}</b> to "
-                     f"<b>{ticket.team_id.name}</b>.<br/>Reason: {reason}",
+                body=_(
+                    "Ticket transferred from <b>%(from_dept)s</b> "
+                    "to <b>%(to_dept)s</b>.<br/>Reason: %(reason)s",
+                    from_dept=old_dept,
+                    to_dept=new_dept,
+                    reason=reason or _("N/A"),
+                ),
                 message_type="notification",
             )

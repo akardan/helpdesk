@@ -23,8 +23,9 @@ class HelpdeskServiceItem(models.Model):
         ondelete="cascade",
     )
 
-    department_type = fields.Selection(
-        related="service_category_id.department_type",
+    department_id = fields.Many2one(
+        related="service_category_id.department_id",
+        string="Department",
         store=True,
         readonly=True,
     )

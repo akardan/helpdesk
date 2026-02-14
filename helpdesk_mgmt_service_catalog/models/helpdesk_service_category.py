@@ -4,7 +4,11 @@ from odoo import fields, models
 
 
 class HelpdeskServiceCategory(models.Model):
-    """Top-level grouping in the service catalog (e.g. 'IT Services', 'HR Services')."""
+    """Top-level grouping in the service catalog (e.g. 'IT Services', 'HR Services').
+
+    Each category is owned by an hr.department so that routing, reporting,
+    and access rules inherit from the company's existing department structure.
+    """
 
     _name = "helpdesk.service.category"
     _description = "Helpdesk Service Catalog Category"
@@ -16,27 +20,22 @@ class HelpdeskServiceCategory(models.Model):
 
     description = fields.Html(string="Description", translate=True)
 
-    department_type = fields.Selection(
-        [
-            ("it", "Information Technology"),
-            ("hr", "Human Resources"),
-            ("finance", "Finance & Accounting"),
-            ("facilities", "Facilities & Maintenance"),
-            ("legal", "Legal & Compliance"),
-            ("marketing", "Marketing & Communications"),
-            ("logistics", "Logistics & Supply Chain"),
-            ("customer_service", "Customer Service"),
-            ("general", "General Services"),
-        ],
-        string="Department Type",
-        required=True,
-        default="general",
+    # ── HR Department ownership ───────────────────────────────────────────────
+    department_id = fields.Many2one(
+        "hr.department",
+        string="Department",
+        ondelete="restrict",
+        index=True,
+        help="The HR department that owns this service category. "
+             "Tickets raised from this category are routed to the team "
+             "linked to this department.",
     )
 
+    # ── Default routing ───────────────────────────────────────────────────────
     team_id = fields.Many2one(
         "helpdesk.ticket.team",
         string="Default Team",
-        help="Tickets created from this category are routed to this team by default.",
+        help="Fallback team when no service item defines a specific team.",
     )
 
     icon = fields.Char(
