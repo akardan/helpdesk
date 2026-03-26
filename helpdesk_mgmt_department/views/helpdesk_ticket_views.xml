@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Show HR department + transfer info on ticket form -->
+    <record id="helpdesk_ticket_view_form_dept" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.dept</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='team_id']" position="after">
+                <field name="hr_department_id" readonly="1"/>
+            </xpath>
+            <!-- Restrict stage dropdown to current team's allowed stages -->
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="domain">[('id','in',available_stage_ids)]</attribute>
+            </xpath>
+            <xpath expr="//field[@name='stage_id']" position="before">
+                <field name="available_stage_ids" invisible="1"/>
+            </xpath>
+            <!-- Transfer history tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Transfer History" name="transfer_history"
+                      invisible="not transferred_from_team_id">
+                    <group>
+                        <field name="transferred_from_team_id" readonly="1"/>
+                        <field name="transfer_reason" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Department search filters using hr.department Many2one -->
+    <record id="helpdesk_ticket_search_dept" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.dept</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='high_priority']" position="after">
+                <separator/>
+                <filter name="filter_dept" string="Department"
+                        domain="[]"/>
+                <field name="hr_department_id"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter name="group_dept" string="Department"
+                        context="{'group_by': 'hr_department_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

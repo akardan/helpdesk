@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+<!--
+    Service categories are linked to hr.department records.
+    Since hr.department records are company-specific they cannot be
+    referenced here. Link each category to your department after installation
+    via the Service Catalog > Catalog menu.
+-->
+
+<!-- IT Service Category -->
+<record id="svc_cat_it" model="helpdesk.service.category">
+    <field name="name">IT Services</field>
+    <field name="icon">fa-laptop</field>
+    <field name="sequence">10</field>
+</record>
+
+<record id="svc_item_laptop" model="helpdesk.service.item">
+    <field name="name">New Laptop Request</field>
+    <field name="service_category_id" ref="svc_cat_it"/>
+    <field name="requires_approval" eval="True"/>
+    <field name="requires_physical_access" eval="True"/>
+    <field name="default_priority">1</field>
+    <field name="sla_response_hours">4.0</field>
+    <field name="sla_resolution_hours">48.0</field>
+    <field name="checklist_template">Verify employee eligibility
+Get manager approval
+Order equipment from supplier
+Configure device (OS, software)
+Deliver to employee
+Update asset register</field>
+</record>
+
+<record id="svc_item_access" model="helpdesk.service.item">
+    <field name="name">System Access Request</field>
+    <field name="service_category_id" ref="svc_cat_it"/>
+    <field name="requires_approval" eval="True"/>
+    <field name="default_priority">1</field>
+    <field name="sla_response_hours">2.0</field>
+    <field name="sla_resolution_hours">8.0</field>
+    <field name="checklist_template">Verify requester identity
+Check access policy
+Get manager approval
+Grant access in system
+Notify requester</field>
+</record>
+
+<record id="svc_item_password" model="helpdesk.service.item">
+    <field name="name">Password Reset</field>
+    <field name="service_category_id" ref="svc_cat_it"/>
+    <field name="requires_approval" eval="False"/>
+    <field name="default_priority">1</field>
+    <field name="sla_response_hours">0.5</field>
+    <field name="sla_resolution_hours">1.0</field>
+</record>
+
+<!-- HR Service Category -->
+<record id="svc_cat_hr" model="helpdesk.service.category">
+    <field name="name">HR Services</field>
+    <field name="icon">fa-users</field>
+    <field name="sequence">20</field>
+</record>
+
+<record id="svc_item_leave" model="helpdesk.service.item">
+    <field name="name">Leave Request</field>
+    <field name="service_category_id" ref="svc_cat_hr"/>
+    <field name="requires_approval" eval="True"/>
+    <field name="default_priority">1</field>
+    <field name="sla_response_hours">24.0</field>
+    <field name="sla_resolution_hours">48.0</field>
+</record>
+
+<record id="svc_item_payslip" model="helpdesk.service.item">
+    <field name="name">Payslip Request</field>
+    <field name="service_category_id" ref="svc_cat_hr"/>
+    <field name="requires_approval" eval="False"/>
+    <field name="default_priority">0</field>
+    <field name="sla_response_hours">4.0</field>
+    <field name="sla_resolution_hours">24.0</field>
+</record>
+
+<!-- Facilities Service Category -->
+<record id="svc_cat_facilities" model="helpdesk.service.category">
+    <field name="name">Facilities Services</field>
+    <field name="icon">fa-building</field>
+    <field name="sequence">30</field>
+</record>
+
+<record id="svc_item_maintenance" model="helpdesk.service.item">
+    <field name="name">Office Maintenance</field>
+    <field name="service_category_id" ref="svc_cat_facilities"/>
+    <field name="requires_physical_access" eval="True"/>
+    <field name="default_priority">1</field>
+    <field name="sla_response_hours">4.0</field>
+    <field name="sla_resolution_hours">24.0</field>
+    <field name="checklist_template">Assess the issue
+Schedule technician
+Complete repair
+Verify with requester</field>
+</record>
+
+<record id="svc_item_cleaning" model="helpdesk.service.item">
+    <field name="name">Cleaning Request</field>
+    <field name="service_category_id" ref="svc_cat_facilities"/>
+    <field name="requires_physical_access" eval="True"/>
+    <field name="default_priority">0</field>
+    <field name="sla_response_hours">2.0</field>
+    <field name="sla_resolution_hours">4.0</field>
+</record>
+
+<!-- Finance Service Category -->
+<record id="svc_cat_finance" model="helpdesk.service.category">
+    <field name="name">Finance Services</field>
+    <field name="icon">fa-money</field>
+    <field name="sequence">40</field>
+</record>
+
+<record id="svc_item_expense" model="helpdesk.service.item">
+    <field name="name">Expense Reimbursement</field>
+    <field name="service_category_id" ref="svc_cat_finance"/>
+    <field name="requires_approval" eval="True"/>
+    <field name="default_priority">1</field>
+    <field name="sla_response_hours">8.0</field>
+    <field name="sla_resolution_hours">72.0</field>
+    <field name="checklist_template">Verify receipts attached
+Check expense policy compliance
+Get manager approval
+Process payment
+Notify employee</field>
+</record>
+
+</data>
+</odoo>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend Ticket Form View with SLA Information -->
+    <record id="helpdesk_ticket_view_form_sla" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.sla</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add SLA button to button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_sla_status" type="object"
+                        class="oe_stat_button" icon="fa-clock-o"
+                        attrs="{'invisible': [('sla_active', '=', False)]}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">SLA</span>
+                        <span class="o_stat_value">
+                            <field name="sla_status_display" widget="badge"
+                                   decoration-success="sla_status_display == 'met'"
+                                   decoration-warning="sla_status_display == 'at_risk'"
+                                   decoration-danger="sla_status_display == 'breached'"/>
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Add SLA fields to form -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="sla_active" invisible="1"/>
+                <field name="sla_deadline_response" attrs="{'invisible': [('sla_active', '=', False)]}"/>
+                <field name="sla_deadline_resolution" attrs="{'invisible': [('sla_active', '=', False)]}"/>
+            </xpath>
+
+            <!-- Add SLA tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="SLA" name="sla" attrs="{'invisible': [('sla_active', '=', False)]}">
+                    <field name="sla_status_ids" nolabel="1">
+                        <tree>
+                            <field name="sla_policy_id"/>
+                            <field name="deadline_response"/>
+                            <field name="response_sla_status"/>
+                            <field name="deadline_resolution"/>
+                            <field name="resolution_sla_status"/>
+                            <field name="overall_sla_status"/>
+                            <field name="resolution_progress" widget="progressbar"/>
+                            <field name="escalated"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Ticket Tree View with SLA Status -->
+    <record id="helpdesk_ticket_view_tree_sla" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.tree.sla</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="sla_status_display" widget="badge"
+                       decoration-success="sla_status_display == 'met'"
+                       decoration-warning="sla_status_display == 'at_risk'"
+                       decoration-danger="sla_status_display == 'breached'"
+                       optional="show"/>
+                <field name="sla_deadline_resolution" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Ticket Kanban View with SLA Indicator -->
+    <record id="helpdesk_ticket_view_kanban_sla" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.kanban.sla</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//templates/t[@t-name='kanban-box']" position="inside">
+                <div class="oe_kanban_bottom_right" t-if="record.sla_active.raw_value">
+                    <span class="badge badge-pill"
+                          t-att-class="{
+                              'badge-success': record.sla_status_display.raw_value == 'met',
+                              'badge-warning': record.sla_status_display.raw_value == 'at_risk',
+                              'badge-danger': record.sla_status_display.raw_value == 'breached'
+                          }">
+                        SLA: <field name="sla_status_display"/>
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add SLA filter to Ticket Search View -->
+    <record id="helpdesk_ticket_view_search_sla" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.sla</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='high_priority']" position="after">
+                <separator/>
+                <filter name="sla_breached" string="SLA Breached"
+                        domain="[('sla_status_display', '=', 'breached')]"/>
+                <filter name="sla_at_risk" string="SLA At Risk"
+                        domain="[('sla_status_display', '=', 'at_risk')]"/>
+                <filter name="sla_active" string="With SLA"
+                        domain="[('sla_active', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

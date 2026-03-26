@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ai_agent_user,helpdesk.ai.agent.user,model_helpdesk_ai_agent,helpdesk_mgmt.group_helpdesk_user,1,0,0,0
+access_ai_agent_manager,helpdesk.ai.agent.manager,model_helpdesk_ai_agent,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_ai_agent_config_user,helpdesk.ai.agent.config.user,model_helpdesk_ai_agent_config,helpdesk_mgmt.group_helpdesk_user,1,0,0,0
+access_ai_agent_config_manager,helpdesk.ai.agent.config.manager,model_helpdesk_ai_agent_config,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend stage form: add team restriction -->
+    <record id="helpdesk_ticket_stage_view_form_dept" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.stage.form.dept</field>
+        <field name="model">helpdesk.ticket.stage</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_stage_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sequence']" position="after">
+                <field name="team_ids" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend stage tree: show restricted teams column -->
+    <record id="helpdesk_ticket_stage_view_tree_dept" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.stage.tree.dept</field>
+        <field name="model">helpdesk.ticket.stage</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_stage_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="team_ids" widget="many2many_tags" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

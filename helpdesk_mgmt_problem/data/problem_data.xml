@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Problem Number Sequence -->
+        <record id="seq_helpdesk_problem" model="ir.sequence">
+            <field name="name">Helpdesk Problem</field>
+            <field name="code">helpdesk.problem</field>
+            <field name="prefix">PRB</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Known Error Number Sequence -->
+        <record id="seq_helpdesk_known_error" model="ir.sequence">
+            <field name="name">Helpdesk Known Error</field>
+            <field name="code">helpdesk.known.error</field>
+            <field name="prefix">KE</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

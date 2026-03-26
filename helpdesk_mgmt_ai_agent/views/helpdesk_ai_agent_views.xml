@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ai_agent_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ai.agent.tree</field>
+        <field name="model">helpdesk.ai.agent</field>
+        <field name="arch" type="xml">
+            <tree string="AI Agents">
+                <field name="name"/>
+                <field name="agent_type"/>
+                <field name="active"/>
+                <field name="execution_count"/>
+                <field name="success_rate" widget="progressbar"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="ai_agent_action" model="ir.actions.act_window">
+        <field name="name">AI Agents</field>
+        <field name="res_model">helpdesk.ai.agent</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_ai_agents" name="AI Agents" parent="helpdesk_mgmt.helpdesk_ticket_menu_config" action="ai_agent_action" sequence="100"/>
+</odoo>

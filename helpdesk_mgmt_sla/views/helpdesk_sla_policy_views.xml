@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- SLA Policy Tree View -->
+    <record id="helpdesk_sla_policy_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.sla.policy.tree</field>
+        <field name="model">helpdesk.sla.policy</field>
+        <field name="arch" type="xml">
+            <tree string="SLA Policies">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="team_id"/>
+                <field name="response_time"/>
+                <field name="resolution_time"/>
+                <field name="success_rate" widget="progressbar"/>
+                <field name="sla_status_count"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- SLA Policy Form View -->
+    <record id="helpdesk_sla_policy_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.sla.policy.form</field>
+        <field name="model">helpdesk.sla.policy</field>
+        <field name="arch" type="xml">
+            <form string="SLA Policy">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sla_statuses" type="object"
+                                class="oe_stat_button" icon="fa-clock-o">
+                            <field name="sla_status_count" widget="statinfo" string="Active SLAs"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Critical Priority SLA"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="criteria" string="Application Criteria">
+                            <field name="active"/>
+                            <field name="sequence"/>
+                            <field name="team_id"/>
+                            <field name="priority_ids" widget="many2many_tags"/>
+                            <field name="category_ids" widget="many2many_tags"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                        </group>
+                        <group name="targets" string="SLA Targets">
+                            <field name="response_time"/>
+                            <field name="resolution_time"/>
+                            <field name="use_working_hours"/>
+                            <field name="resource_calendar_id"
+                                   attrs="{'invisible': [('use_working_hours', '=', False)],
+                                          'required': [('use_working_hours', '=', True)]}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="escalation" string="Escalation Settings">
+                            <field name="escalate_before_breach"/>
+                            <field name="escalation_threshold"
+                                   attrs="{'invisible': [('escalate_before_breach', '=', False)]}"/>
+                            <field name="escalation_user_ids" widget="many2many_tags"
+                                   attrs="{'invisible': [('escalate_before_breach', '=', False)]}"/>
+                        </group>
+                        <group name="pause" string="Stage-based Pause">
+                            <field name="exclude_stage_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group name="description">
+                        <field name="description" placeholder="Policy description..."/>
+                    </group>
+                    <group name="statistics" string="Statistics">
+                        <field name="success_rate" widget="progressbar"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- SLA Policy Action -->
+    <record id="helpdesk_sla_policy_action" model="ir.actions.act_window">
+        <field name="name">SLA Policies</field>
+        <field name="res_model">helpdesk.sla.policy</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first SLA Policy
+            </p>
+            <p>
+                Define Service Level Agreements to automatically track response and resolution times for your helpdesk tickets.
+            </p>
+        </field>
+    </record>
+
+    <!-- Priority Tree View -->
+    <record id="helpdesk_ticket_priority_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.priority.tree</field>
+        <field name="model">helpdesk.ticket.priority</field>
+        <field name="arch" type="xml">
+            <tree string="Ticket Priorities">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="value"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Priority Form View -->
+    <record id="helpdesk_ticket_priority_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.priority.form</field>
+        <field name="model">helpdesk.ticket.priority</field>
+        <field name="arch" type="xml">
+            <form string="Ticket Priority">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="value"/>
+                        <field name="sequence"/>
+                        <field name="color" widget="color"/>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Priority description..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_helpdesk_sla_root"
+              name="SLA Management"
+              parent="helpdesk_mgmt.helpdesk_ticket_menu_config"
+              sequence="50"/>
+
+    <menuitem id="menu_helpdesk_sla_policy"
+              name="SLA Policies"
+              parent="menu_helpdesk_sla_root"
+              action="helpdesk_sla_policy_action"
+              sequence="10"/>
+
+</odoo>

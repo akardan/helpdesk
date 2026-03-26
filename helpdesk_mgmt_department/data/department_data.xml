@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Stage templates are linked to hr.department records which are
+    company-specific and therefore cannot be pre-created in module data.
+
+    To create stage templates for your departments:
+      1. Open Configuration > Stage Templates
+      2. Create records and link each to the relevant hr.department
+    OR use the "Create Default Stages" smart button on any helpdesk team
+    form – this auto-generates a stage set based on the department name.
+-->
+</odoo>
